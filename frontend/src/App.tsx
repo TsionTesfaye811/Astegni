@@ -1,0 +1,55 @@
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import RootLayout from './layouts/RootLayout'
+import Home from './pages/Home'
+import Learn from './pages/Learn'
+import GradePage from './pages/GradePage'
+import SubjectPage from './pages/SubjectPage'
+import ChapterDetail from './pages/ChapterDetail'
+import NationalExam from './pages/NationalExam'
+import Tutors from './pages/Tutors'
+import TutorProfile from './pages/TutorProfile'
+import Profile from './pages/Profile'
+import About from './pages/About'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import ExamTake from './pages/ExamTake'
+import ProtectedRoute from './components/ProtectedRoute'
+import { AuthProvider } from './context/AuthContext'
+import { ReviewsProvider } from './context/ReviewsContext'
+
+const router = createBrowserRouter([{
+  path: '/',
+  Component: RootLayout,
+  children: [
+    { index: true, Component: Home },
+    { path: 'login', Component: Login },
+    { path: 'register', Component: Register },
+    {
+      Component: ProtectedRoute,
+      children: [
+        { path: 'learn', Component: Learn },
+        { path: 'learn/:grade', Component: GradePage },
+        { path: 'learn/:grade/:subject', Component: SubjectPage },
+        { path: 'learn/:grade/:subject/:chapter', Component: ChapterDetail },
+        { path: 'exam', Component: NationalExam },
+        { path: 'exam/take/:examId', Component: ExamTake },
+        { path: 'tutors', Component: Tutors },
+        { path: 'tutors/:id', Component: TutorProfile },
+        { path: 'profile', Component: Profile },
+        { path: 'about', Component: About },
+      ],
+    },
+  ],
+}])
+
+function App() {
+  return (
+    <AuthProvider>
+      <ReviewsProvider>
+        <RouterProvider router={router} />
+      </ReviewsProvider>
+    </AuthProvider>
+  )
+}
+
+export default App
