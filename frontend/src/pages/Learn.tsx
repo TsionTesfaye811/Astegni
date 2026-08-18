@@ -7,7 +7,7 @@ const GRADE_DATA = [
   { grade: "9", title: "Grade 9", subtitle: "Foundation Year", subjects: 9, chapters: 58, progress: 45, color: "from-blue-500 to-blue-700", light: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", img: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=480&h=300&fit=crop&auto=format" },
   { grade: "10", title: "Grade 10", subtitle: "Core Development", subjects: 9, chapters: 58, progress: 28, color: "from-violet-500 to-violet-700", light: "bg-violet-50", text: "text-violet-700", border: "border-violet-200", img: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=480&h=300&fit=crop&auto=format" },
   { grade: "11", title: "Grade 11", subtitle: "Pre-Exam Preparation", subjects: 8, chapters: 52, progress: 12, color: "from-emerald-500 to-emerald-700", light: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=480&h=300&fit=crop&auto=format" },
-  { grade: "12", title: "Grade 12", subtitle: "National Exit Exam Year", subjects: 8, chapters: 52, progress: 72, color: "from-orange-500 to-rose-600", light: "bg-orange-50", text: "text-orange-700", border: "border-orange-200", img: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=480&h=300&fit=crop&auto=format" },
+  { grade: "12", title: "Grade 12", subtitle: "National Exam Year", subjects: 8, chapters: 52, progress: 72, color: "from-orange-500 to-rose-600", light: "bg-orange-50", text: "text-orange-700", border: "border-orange-200", img: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=480&h=300&fit=crop&auto=format" },
 ];
 
 export default function Learn() {

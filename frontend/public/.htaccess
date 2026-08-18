@@ -1,0 +1,19 @@
+# Astegni — Apache (cPanel) SPA routing
+# Ensures React Router paths like /learn, /exam, /profile work on refresh.
+
+<IfModule mod_rewrite.c>
+  Options -MultiViews
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# Basic security headers (safe defaults for a static site)
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

@@ -26,6 +26,9 @@ export default function Tutors() {
           <Breadcrumb items={[{ label: "Home", to: "/" }, { label: "Tutors" }]} />
           <h1 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-3xl text-slate-900 mt-3 mb-1">Find Your Tutor</h1>
           <p className="text-slate-500 mb-6">Connect with expert Ethiopian educators for one-on-one guidance.</p>
+          <Link to="/become-tutor" className="mb-2 inline-flex items-center gap-2 rounded-xl bg-[#F59E0B] px-4 py-2.5 text-sm font-extrabold text-amber-950 hover:bg-amber-400">
+            Apply to become a tutor
+          </Link>
 
           <div className="flex flex-col sm:flex-row gap-3 max-w-2xl">
             <div className="relative flex-1">

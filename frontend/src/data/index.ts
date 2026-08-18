@@ -84,7 +84,18 @@ export interface Tutor {
   bio: string;
   email?: string;
   phone?: string;
+  age?: number;
+  highlights?: string[];
+  availabilityDays?: string[];
+  sessionMinutes?: number;
 }
+
+const DEFAULT_HIGHLIGHTS = [
+  "Experienced in Ethiopian MOE curriculum",
+  "Fluent in Amharic and English",
+  "Proven exam success record",
+  "Patient, structured teaching method",
+];
 
 export const TUTORS: Tutor[] = [
   {
@@ -93,7 +104,8 @@ export const TUTORS: Tutor[] = [
     subjects: ["Physics", "Mathematics"], experience: 8, rating: 4.9, reviews: 312,
     students: 1240, available: true, location: "Addis Ababa",
     education: "PhD Physics, Addis Ababa University",
-    email: "mekdes.alemu@astegni.et", phone: "+251 911 234 567",
+    email: "mekdes.alemu@astegni.et", phone: "+251 911 234 567", age: 34,
+    highlights: DEFAULT_HIGHLIGHTS, availabilityDays: ["Mon", "Tue", "Thu", "Fri"], sessionMinutes: 90,
     bio: "Dr. Mekdes Alemu is a passionate educator with over 8 years of teaching experience at both high school and university levels. She specializes in making complex Physics concepts intuitive and accessible to all students.",
   },
   {
@@ -102,7 +114,8 @@ export const TUTORS: Tutor[] = [
     subjects: ["Mathematics", "Physics"], experience: 12, rating: 4.8, reviews: 487,
     students: 2100, available: true, location: "Addis Ababa",
     education: "MSc Mathematics, Jimma University",
-    email: "belay.tadesse@astegni.et", phone: "+251 911 345 678",
+    email: "belay.tadesse@astegni.et", phone: "+251 911 345 678", age: 41,
+    highlights: DEFAULT_HIGHLIGHTS, availabilityDays: ["Mon", "Wed", "Fri", "Sat"], sessionMinutes: 60,
     bio: "With 12 years of classroom experience, Ato Belay has a proven track record of helping students significantly improve their national exam scores in Mathematics.",
   },
   {
@@ -111,7 +124,8 @@ export const TUTORS: Tutor[] = [
     subjects: ["Biology", "Chemistry"], experience: 6, rating: 4.7, reviews: 198,
     students: 890, available: false, location: "Bahir Dar",
     education: "BSc Biology, Bahir Dar University",
-    email: "tigist.haile@astegni.et", phone: "+251 911 456 789",
+    email: "tigist.haile@astegni.et", phone: "+251 911 456 789", age: 29,
+    highlights: DEFAULT_HIGHLIGHTS, availabilityDays: ["Tue", "Thu"], sessionMinutes: 75,
     bio: "W/ro Tigist brings energy and clarity to natural sciences. Her students consistently praise her ability to connect textbook concepts to real-world Ethiopian examples.",
   },
   {
@@ -120,7 +134,8 @@ export const TUTORS: Tutor[] = [
     subjects: ["History", "Geography", "Civics"], experience: 10, rating: 4.9, reviews: 265,
     students: 1560, available: true, location: "Hawassa",
     education: "MA History, Hawassa University",
-    email: "solomon.girma@astegni.et", phone: "+251 911 567 890",
+    email: "solomon.girma@astegni.et", phone: "+251 911 567 890", age: 38,
+    highlights: DEFAULT_HIGHLIGHTS, availabilityDays: ["Mon", "Tue", "Wed", "Fri"], sessionMinutes: 60,
     bio: "Ato Solomon is a gifted storyteller who brings Ethiopian and world history to life. His passion for the subject is infectious and his exam pass rates are among the highest nationally.",
   },
   {
@@ -129,7 +144,8 @@ export const TUTORS: Tutor[] = [
     subjects: ["English", "Amharic"], experience: 7, rating: 4.8, reviews: 341,
     students: 1780, available: true, location: "Mekelle",
     education: "MA English Literature, Mekelle University",
-    email: "sara.tekeste@astegni.et", phone: "+251 911 678 901",
+    email: "sara.tekeste@astegni.et", phone: "+251 911 678 901", age: 33,
+    highlights: DEFAULT_HIGHLIGHTS, availabilityDays: ["Mon", "Thu", "Sat", "Sun"], sessionMinutes: 45,
     bio: "Mrs. Sara specializes in language arts and has helped hundreds of students achieve excellence in both English and Amharic. Her approach focuses on practical communication skills.",
   },
   {
@@ -138,8 +154,9 @@ export const TUTORS: Tutor[] = [
     subjects: ["Chemistry", "Biology"], experience: 9, rating: 4.6, reviews: 156,
     students: 720, available: true, location: "Dire Dawa",
     education: "PhD Chemistry, Haramaya University",
-    email: "hana.bekele@astegni.et", phone: "+251 911 789 012",
-    bio: "Dr. Hana combines rigorous scientific knowledge with patient, student-centered teaching. She is especially skilled at preparing students for the chemistry portions of the national exit exam.",
+    email: "hana.bekele@astegni.et", phone: "+251 911 789 012", age: 36,
+    highlights: DEFAULT_HIGHLIGHTS, availabilityDays: ["Tue", "Wed", "Fri", "Sat"], sessionMinutes: 90,
+    bio: "Dr. Hana combines rigorous scientific knowledge with patient, student-centered teaching. She is especially skilled at preparing students for the chemistry portions of the National Exam for Grade 12.",
   },
 ];
 

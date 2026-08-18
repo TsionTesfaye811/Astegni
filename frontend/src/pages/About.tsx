@@ -15,7 +15,7 @@ const FAQS = [
   { q: "Is the content in Amharic?", a: "Yes. All lessons, notes, and interface elements are available in both Amharic and English. You can switch languages at any time in your profile settings." },
   { q: "How are the tutors verified?", a: "Every tutor on Astegni goes through a rigorous vetting process including credential verification, subject knowledge testing, and a background check before they can teach on the platform." },
   { q: "Can I download lessons for offline use?", a: "PDF notes and textbook excerpts can be downloaded for offline use. Video lessons require an active internet connection but are optimized for low-bandwidth connections." },
-  { q: "How do I prepare for the National Exit Exam?", a: "Use our dedicated National Exit Exam section which includes a structured roadmap, past EUEE papers, mock exams, and subject-by-subject revision materials." },
+  { q: "How do I prepare for the National Exam for Grade 12?", a: "Use our dedicated National Exam section which includes a structured roadmap, past papers and mock exams for every subject, and subject-by-subject revision materials." },
 ];
 
 export default function About() {
@@ -45,7 +45,7 @@ export default function About() {
           <div className="bg-white rounded-2xl border border-slate-100 p-7 shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center mb-5"><Eye className="w-6 h-6 text-indigo-600" /></div>
             <h2 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-xl text-slate-900 mb-3">Our Vision</h2>
-            <p className="text-slate-600 leading-relaxed">A future where every Ethiopian student has the knowledge, skills, and confidence to pass the National Exit Exam, access higher education, and contribute to their country's development.</p>
+            <p className="text-slate-600 leading-relaxed">A future where every Ethiopian student has the knowledge, skills, and confidence to pass the National Exam for Grade 12, access higher education, and contribute to their country's development.</p>
           </div>
         </div>
 

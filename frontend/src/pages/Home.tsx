@@ -199,7 +199,7 @@ export default function Home() {
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-400/20 border border-amber-300/30 text-amber-300 text-xs font-bold mb-4">
                   <Award className="w-3.5 h-3.5" /> Grade 12 Exam Prep · 2016 E.C.
                 </div>
-                <h2 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-3xl text-white mb-3">Ready for the National Exit Exam?</h2>
+                <h2 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-3xl text-white mb-3">Ready for the National Exam for Grade 12?</h2>
                 <div className="flex flex-wrap gap-4 mt-4">
                   {["10 Subjects Covered", "5 Years of Past Papers", "Live Mock Exams"].map(item => (
                     <div key={item} className="flex items-center gap-2 text-blue-100/80 text-sm">
@@ -281,7 +281,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <SectionHeader label="Expert Educators" title="Meet Our Tutors" linkTo="/tutors" linkText="All tutors" />
-            <Link to="/register?role=tutor" className="mb-8 inline-flex items-center gap-2 rounded-xl bg-[#F59E0B] px-5 py-3 text-sm font-extrabold text-amber-950 shadow-lg shadow-amber-100 transition hover:bg-amber-400">Register as Tutor <ArrowRight className="h-4 w-4" /></Link>
+            <Link to="/become-tutor" className="mb-8 inline-flex items-center gap-2 rounded-xl bg-[#F59E0B] px-5 py-3 text-sm font-extrabold text-amber-950 shadow-lg shadow-amber-100 transition hover:bg-amber-400">Register as Tutor <ArrowRight className="h-4 w-4" /></Link>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {TUTORS.slice(0, 3).map(t => (

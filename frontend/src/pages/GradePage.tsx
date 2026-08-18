@@ -12,7 +12,7 @@ const GRADE_INFO: Record<string, { title: string; description: string; color: st
   "9":  { title: "Grade 9", description: "Foundation Year — build strong core skills across all subjects.", color: "blue", gradient: "from-blue-500 to-blue-700" },
   "10": { title: "Grade 10", description: "Core Development — deepen your understanding and tackle harder concepts.", color: "violet", gradient: "from-violet-500 to-violet-700" },
   "11": { title: "Grade 11", description: "Pre-Exam Year — prepare for specialization and the national exit exam.", color: "emerald", gradient: "from-emerald-500 to-emerald-700" },
-  "12": { title: "Grade 12", description: "National Exit Exam Year — master every topic and pass with confidence.", color: "orange", gradient: "from-orange-500 to-rose-600" },
+  "12": { title: "Grade 12", description: "National Exam Year — master every topic and pass with confidence.", color: "orange", gradient: "from-orange-500 to-rose-600" },
 };
 
 export default function GradePage() {

@@ -18,7 +18,7 @@ const SOCIALS = [
 const NAV = [
   { to: "/", label: "Home", icon: Home },
   { to: "/learn", label: "Learn", icon: BookOpen },
-  { to: "/exam", label: "Exit Exam", icon: Trophy },
+  { to: "/exam", label: "National Exam", icon: Trophy },
   { to: "/tutors", label: "Tutors", icon: Users },
   { to: "/about", label: "About", icon: Info },
 ];
@@ -142,7 +142,7 @@ export default function RootLayout() {
             </div>
             {[
               { heading: "Learn", links: [["Grade 9", "/learn/9"], ["Grade 10", "/learn/10"], ["Grade 11", "/learn/11"], ["Grade 12", "/learn/12"]] },
-              { heading: "Platform", links: [["Exit Exam", "/exam"], ["Tutors", "/tutors"], ["Profile", "/profile"], ["About", "/about"]] },
+              { heading: "Platform", links: [["National Exam", "/exam"], ["Tutors", "/tutors"], ["Become a Tutor", "/become-tutor"], ["Profile", "/profile"], ["About", "/about"]] },
               { heading: "Subjects", links: [["Mathematics", "/learn/12/mathematics"], ["Physics", "/learn/12/physics"], ["Chemistry", "/learn/12/chemistry"], ["Biology", "/learn/12/biology"]] },
             ].map(({ heading, links }) => (
               <div key={heading}>

@@ -4,7 +4,7 @@ import { Trophy, Clock, BookOpen, FileText, Target, Lightbulb, CheckCircle2, Pla
 import { EXAM_SUBJECTS, EXAM_TIPS, SUBJECT_DEFS } from "../data";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { getExamRevision } from "../data/examRevision";
-import { MOCK_EXAM_CARDS, PAST_EXAM_CARDS } from "../data/exams";
+import { getExamsBySubject } from "../data/exams";
 
 const STAT_STYLES = {
   blue: { bg: "bg-blue-50", text: "text-blue-600" },
@@ -38,7 +38,11 @@ export default function NationalExam() {
   const [activeRoadmap, setActiveRoadmap] = useState(0);
   const [revisionSubject, setRevisionSubject] = useState<string | null>(null);
   const [revisionChapter, setRevisionChapter] = useState<number | null>(null);
+  const [examSubjectId, setExamSubjectId] = useState(SUBJECT_DEFS[0].id);
   const overallProgress = Math.round(EXAM_SUBJECTS.reduce((a, s) => a + s.progress, 0) / EXAM_SUBJECTS.length);
+  const pastForSubject = getExamsBySubject(examSubjectId, "past");
+  const mockForSubject = getExamsBySubject(examSubjectId, "mock");
+  const selectedSubject = SUBJECT_DEFS.find(s => s.id === examSubjectId) ?? SUBJECT_DEFS[0];
 
   const roadmap = [
     { step: "1", title: "Assess Your Baseline", desc: "Take a diagnostic test to identify your strong and weak subjects.", done: true },
@@ -54,14 +58,14 @@ export default function NationalExam() {
       {/* Hero banner */}
       <div className="bg-gradient-to-br from-[#0A1F5C] via-[#1344C8] to-[#2563EB] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <Breadcrumb items={[{ label: "Home", to: "/" }, { label: "National Exit Exam" }]} />
+          <Breadcrumb items={[{ label: "Home", to: "/" }, { label: "National Exam for Grade 12" }]} />
           <div className="grid lg:grid-cols-2 gap-10 items-center mt-6">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-400/20 border border-amber-300/30 text-amber-300 text-xs font-bold mb-4">
                 <Trophy className="w-3.5 h-3.5" /> Ethiopian University Entrance Exam (EUEE)
               </div>
-              <h1 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-4xl mb-3">National Exit Exam<br />Preparation Hub</h1>
-              <p className="text-blue-100/80 leading-relaxed mb-5">Everything you need to ace the EUEE — past papers, mock exams, subject revision, and expert tips.</p>
+              <h1 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-4xl mb-3">National Exam for<br />Grade 12</h1>
+              <p className="text-blue-100/80 leading-relaxed mb-5">Everything you need to ace the Grade 12 national exam — past papers and mock exams for every subject, revision notes, and expert tips.</p>
               <div className="flex flex-wrap gap-3">
                 <a href="#revision" className="px-5 py-2.5 bg-[#F59E0B] text-amber-900 font-bold rounded-xl hover:bg-amber-400 transition-colors">
                   Start Revision
@@ -163,45 +167,61 @@ export default function NationalExam() {
           </div>
         </div>
 
-        {/* Past Exams & Mock Exams */}
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Past papers */}
-          <div>
-            <div className="flex items-center gap-2 mb-5"><div className="w-1 h-5 rounded-full bg-[#2563EB]" /><h2 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-xl text-slate-900">Past National Exams</h2></div>
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-              {PAST_EXAM_CARDS.map((exam, i) => (
-                <div key={exam.id} className={`flex items-center justify-between p-4 transition-colors hover:bg-slate-50 ${i < PAST_EXAM_CARDS.length - 1 ? "border-b border-slate-100" : ""}`}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center"><FileText className="w-4 h-4 text-blue-600" /></div>
-                    <div>
-                      <div className="text-sm font-semibold text-slate-800">{exam.title}</div>
-                      <div className="text-xs text-slate-500">{exam.questions.length} interactive questions · {exam.duration}</div>
-                    </div>
-                  </div>
-                  <Link to={`/exam/take/${exam.id}`} className="flex items-center gap-1.5 px-3.5 py-2 bg-[#2563EB] text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-colors"><Play className="w-3.5 h-3.5" /> Start Exam</Link>
-                </div>
-              ))}
+        {/* Past Exams & Mock Exams — all subjects */}
+        <div id="exams">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1"><div className="w-1 h-5 rounded-full bg-[#2563EB]" /><h2 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-xl text-slate-900">Past & Mock Exams by Subject</h2></div>
+              <p className="text-sm text-slate-500">Every Grade 12 subject includes its own past national exams and mock exams.</p>
             </div>
           </div>
-
-          {/* Mock exams */}
-          <div>
-            <div className="flex items-center gap-2 mb-5"><div className="w-1 h-5 rounded-full bg-[#2563EB]" /><h2 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-xl text-slate-900">Mock Exams</h2></div>
-            <div className="space-y-3">
-              {MOCK_EXAM_CARDS.map(exam => (
-                <div key={exam.id} className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-50"><Clock className="w-4 h-4 text-amber-500" /></div>
-                    <div>
-                      <div className="text-sm font-semibold text-slate-800">{exam.title}</div>
-                      <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
-                        <span>{exam.duration}</span><span>·</span><span>{exam.questions.length} questions</span>
+          <div className="mb-6 flex flex-wrap gap-2">
+            {SUBJECT_DEFS.map(subject => (
+              <button key={subject.id} onClick={() => setExamSubjectId(subject.id)}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${examSubjectId === subject.id ? "bg-[#2563EB] text-white shadow-md shadow-blue-200" : "border border-slate-200 bg-white text-slate-600 hover:border-blue-300"}`}>
+                {subject.name}
+              </button>
+            ))}
+          </div>
+          <div className="mb-4 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800">
+            Showing exams for <span className="font-extrabold">{selectedSubject.name}</span>
+          </div>
+          <div className="grid lg:grid-cols-2 gap-8">
+            <div>
+              <div className="flex items-center gap-2 mb-5"><FileText className="w-4 h-4 text-blue-600" /><h3 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-lg text-slate-900">Past National Exams</h3></div>
+              <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                {pastForSubject.map((exam, i) => (
+                  <div key={exam.id} className={`flex items-center justify-between gap-3 p-4 transition-colors hover:bg-slate-50 ${i < pastForSubject.length - 1 ? "border-b border-slate-100" : ""}`}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0"><FileText className="w-4 h-4 text-blue-600" /></div>
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-slate-800 truncate">{exam.title}</div>
+                        <div className="text-xs text-slate-500">{exam.questions.length} questions · {exam.duration}</div>
                       </div>
                     </div>
+                    <Link to={`/exam/take/${exam.id}`} className="flex items-center gap-1.5 px-3.5 py-2 bg-[#2563EB] text-white text-xs font-bold rounded-xl hover:bg-blue-700 transition-colors shrink-0"><Play className="w-3.5 h-3.5" /> Start</Link>
                   </div>
-                  <Link to={`/exam/take/${exam.id}`} className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-colors whitespace-nowrap bg-[#2563EB] text-white hover:bg-blue-700"><Play className="w-3.5 h-3.5" /> Start Exam</Link>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-5"><Clock className="w-4 h-4 text-amber-500" /><h3 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-lg text-slate-900">Mock Exams</h3></div>
+              <div className="space-y-3">
+                {mockForSubject.map(exam => (
+                  <div key={exam.id} className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center justify-between gap-3 shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-50 shrink-0"><Clock className="w-4 h-4 text-amber-500" /></div>
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-slate-800 truncate">{exam.title}</div>
+                        <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                          <span>{exam.duration}</span><span>·</span><span>{exam.questions.length} questions</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Link to={`/exam/take/${exam.id}`} className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-colors whitespace-nowrap bg-[#2563EB] text-white hover:bg-blue-700 shrink-0"><Play className="w-3.5 h-3.5" /> Start</Link>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

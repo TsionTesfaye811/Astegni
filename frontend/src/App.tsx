@@ -12,6 +12,8 @@ import Profile from './pages/Profile'
 import About from './pages/About'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import BecomeTutor from './pages/BecomeTutor'
 import ExamTake from './pages/ExamTake'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider } from './context/AuthContext'
@@ -24,9 +26,12 @@ const router = createBrowserRouter([{
     { index: true, Component: Home },
     { path: 'login', Component: Login },
     { path: 'register', Component: Register },
+    { path: 'forgot-password', Component: ForgotPassword },
     {
       Component: ProtectedRoute,
       children: [
+        { path: 'become-tutor', Component: BecomeTutor },
+        { path: 'edit-tutor-profile', Component: BecomeTutor },
         { path: 'learn', Component: Learn },
         { path: 'learn/:grade', Component: GradePage },
         { path: 'learn/:grade/:subject', Component: SubjectPage },
