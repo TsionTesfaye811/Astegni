@@ -1,120 +1,76 @@
-import { Link, useParams } from "react-router-dom";
-import { ChevronRight, BookOpen, Play, CheckCircle2, Lock } from "lucide-react";
-import { SUBJECT_DEFS } from "../data";
+import { Link, Navigate, useParams } from "react-router-dom";
+import { BookOpen, ChevronRight, Play } from "lucide-react";
+import { getStream, isStreamId } from "../data";
 import { Breadcrumb } from "../components/Breadcrumb";
 
-const PROGRESS_BY_SUBJECT: Record<string, number> = {
-  mathematics: 72, physics: 45, chemistry: 30, biology: 88,
-  english: 95, amharic: 55, history: 20, geography: 60, civics: 40,
-};
-
-const GRADE_INFO: Record<string, { title: string; description: string; color: string; gradient: string }> = {
-  "9":  { title: "Grade 9", description: "Foundation Year — build strong core skills across all subjects.", color: "blue", gradient: "from-blue-500 to-blue-700" },
-  "10": { title: "Grade 10", description: "Core Development — deepen your understanding and tackle harder concepts.", color: "violet", gradient: "from-violet-500 to-violet-700" },
-  "11": { title: "Grade 11", description: "Pre-Exam Year — prepare for specialization and the national exit exam.", color: "emerald", gradient: "from-emerald-500 to-emerald-700" },
-  "12": { title: "Grade 12", description: "National Exam Year — master every topic and pass with confidence.", color: "orange", gradient: "from-orange-500 to-rose-600" },
-};
+const GRADE_DATA = [
+  { grade: "9", title: "Grade 9", subtitle: "Foundation Year", subjects: 6, chapters: 40, progress: 45, color: "from-blue-500 to-blue-700", light: "bg-blue-50", text: "text-blue-700", border: "border-blue-200", img: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=480&h=300&fit=crop&auto=format" },
+  { grade: "10", title: "Grade 10", subtitle: "Core Development", subjects: 6, chapters: 42, progress: 28, color: "from-violet-500 to-violet-700", light: "bg-violet-50", text: "text-violet-700", border: "border-violet-200", img: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=480&h=300&fit=crop&auto=format" },
+  { grade: "11", title: "Grade 11", subtitle: "Pre-Exam Preparation", subjects: 6, chapters: 44, progress: 12, color: "from-emerald-500 to-emerald-700", light: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", img: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=480&h=300&fit=crop&auto=format" },
+  { grade: "12", title: "Grade 12", subtitle: "National Exam Year", subjects: 6, chapters: 46, progress: 72, color: "from-orange-500 to-rose-600", light: "bg-orange-50", text: "text-orange-700", border: "border-orange-200", img: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=480&h=300&fit=crop&auto=format" },
+];
 
 export default function GradePage() {
-  const { grade } = useParams<{ grade: string }>();
-  const g = grade ?? "12";
-  const info = GRADE_INFO[g] ?? GRADE_INFO["12"];
+  const { stream } = useParams<{ stream: string }>();
 
-  const subjects = g === "9" || g === "10" ? SUBJECT_DEFS : SUBJECT_DEFS.slice(0, 8);
+  if (!isStreamId(stream)) {
+    return <Navigate to="/learn" replace />;
+  }
 
-  const totalChapters = subjects.reduce((a, s) => a + s.chapters, 0);
-  const avgProgress = Math.round(subjects.reduce((a, s) => a + (PROGRESS_BY_SUBJECT[s.id] ?? 0), 0) / subjects.length);
-  const completed = subjects.filter(s => (PROGRESS_BY_SUBJECT[s.id] ?? 0) === 100).length;
+  const streamDef = getStream(stream)!;
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen">
-      {/* Header */}
-      <div className={`bg-gradient-to-r ${info.gradient} text-white`}>
+      <div className={`bg-gradient-to-r ${streamDef.gradient} text-white`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <Breadcrumb items={[{ label: "Home", to: "/" }, { label: "Learn", to: "/learn" }, { label: info.title }]} />
-          <h1 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-4xl mt-4 mb-2">{info.title}</h1>
-          <p className="text-white/80 text-base max-w-lg">{info.description}</p>
-          <div className="flex flex-wrap gap-6 mt-8">
-            {[
-              { label: "Subjects", value: subjects.length },
-              { label: "Total Chapters", value: totalChapters },
-              { label: "Avg. Progress", value: `${avgProgress}%` },
-              { label: "Completed", value: `${completed}/${subjects.length}` },
-            ].map(({ label, value }) => (
-              <div key={label} className="bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl px-5 py-3 text-center">
-                <div className="text-2xl font-extrabold font-['Plus_Jakarta_Sans',sans-serif]">{value}</div>
-                <div className="text-white/70 text-xs mt-0.5">{label}</div>
-              </div>
-            ))}
-          </div>
+          <Breadcrumb items={[
+            { label: "Home", to: "/" },
+            { label: "Learn", to: "/learn" },
+            { label: streamDef.name },
+          ]} />
+          <h1 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-4xl mt-4 mb-2">Choose Your Grade</h1>
+          <p className="text-white/80 text-base max-w-xl">
+            You selected {streamDef.name}. Now pick Grade 9–12 to open the matching subjects.
+          </p>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="w-1 h-5 rounded-full bg-[#2563EB]" />
-          <h2 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-xl text-slate-900">All Subjects</h2>
-          <span className="ml-1 px-2.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">{subjects.length}</span>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {subjects.map(s => {
-            const Icon = s.icon;
-            const progress = PROGRESS_BY_SUBJECT[s.id] ?? 0;
-            const isLocked = false;
-            const chaptersCompleted = Math.round((progress / 100) * s.chapters);
-
-            return (
-              <Link key={s.id} to={`/learn/${g}/${s.id}`}
-                className="group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
-                {/* Subject color header */}
-                <div className="h-2 w-full" style={{ background: s.color }} />
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm" style={{ background: s.bg }}>
-                        <Icon className="w-6 h-6" style={{ color: s.color }} />
-                      </div>
-                      <div>
-                        <h3 className="font-['Plus_Jakarta_Sans',sans-serif] font-bold text-base text-slate-800 group-hover:text-[#2563EB] transition-colors">{s.name}</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">{s.description}</p>
-                      </div>
-                    </div>
-                    {isLocked ? <Lock className="w-4 h-4 text-slate-400 shrink-0" /> :
-                      progress === 100 ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" /> : null}
-                  </div>
-
-                  <div className="flex items-center gap-4 text-xs text-slate-500 mb-4">
-                    <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5" />{s.chapters} chapters</span>
-                    <span className="flex items-center gap-1.5"><Play className="w-3.5 h-3.5" />{chaptersCompleted} completed</span>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-500">Progress</span>
-                      <span className="font-bold" style={{ color: s.color }}>{progress}%</span>
-                    </div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${progress}%`, background: s.color }} />
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex -space-x-1">
-                      {Array.from({ length: Math.min(chaptersCompleted, 5) }).map((_, i) => (
-                        <div key={i} className="w-5 h-5 rounded-full border-2 border-white bg-emerald-400 flex items-center justify-center">
-                          <CheckCircle2 className="w-3 h-3 text-white" />
-                        </div>
-                      ))}
-                    </div>
-                    <span className="text-xs font-bold flex items-center gap-1" style={{ color: s.color }}>
-                      {progress > 0 ? "Continue" : "Start"} <ChevronRight className="w-3.5 h-3.5" />
-                    </span>
+        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
+          {GRADE_DATA.map(g => (
+            <Link
+              key={g.grade}
+              to={`/learn/${stream}/${g.grade}`}
+              className="group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
+            >
+              <div className="relative h-36 overflow-hidden">
+                <img src={g.img} alt={g.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <div className={`absolute inset-0 bg-gradient-to-t ${g.color} opacity-75`} />
+                <div className="absolute inset-0 p-5 flex flex-col justify-between">
+                  <span className="self-start px-2.5 py-1 bg-white/20 border border-white/30 text-white text-xs font-bold rounded-lg backdrop-blur-sm">{g.subtitle}</span>
+                  <div>
+                    <div className="text-4xl font-extrabold text-white font-['Plus_Jakarta_Sans',sans-serif] leading-none">{g.grade}</div>
+                    <div className="text-white/80 text-sm font-medium">{g.title}</div>
                   </div>
                 </div>
-              </Link>
-            );
-          })}
+              </div>
+              <div className="p-5">
+                <div className="flex gap-4 mb-4 text-sm">
+                  <div className={`flex items-center gap-1.5 ${g.text}`}><BookOpen className="w-4 h-4" /><span className="font-semibold">{streamDef.subjects.length} subjects</span></div>
+                  <div className="flex items-center gap-1.5 text-slate-500"><Play className="w-4 h-4" /><span>{g.chapters} chapters</span></div>
+                </div>
+                <div className="space-y-1.5 mb-4">
+                  <div className="flex justify-between text-xs"><span className="text-slate-500">Progress</span><span className={`font-bold ${g.text}`}>{g.progress}%</span></div>
+                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div className={`h-full bg-gradient-to-r ${g.color} rounded-full transition-all`} style={{ width: `${g.progress}%` }} />
+                  </div>
+                </div>
+                <div className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-sm ${g.light} ${g.text} border ${g.border} group-hover:shadow-md transition-all`}>
+                  Open subjects <ChevronRight className="w-4 h-4" />
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

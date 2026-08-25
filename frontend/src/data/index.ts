@@ -24,6 +24,61 @@ export const SUBJECT_DEFS: SubjectDef[] = [
   { id: "civics", name: "Civics", icon: Scale, color: "#6D28D9", bg: "#F5F3FF", iconBg: "#EDE9FE", chapters: 5, description: "Constitutional rights and civic duties" },
 ];
 
+export type StreamId = "natural" | "social";
+
+export const STREAMS: Array<{
+  id: StreamId;
+  name: string;
+  description: string;
+  subjects: string[];
+  color: string;
+  gradient: string;
+  light: string;
+  border: string;
+}> = [
+  {
+    id: "natural",
+    name: "Natural Science",
+    description: "Mathematics, Physics, Chemistry, Biology, and shared language courses for science-focused learners.",
+    subjects: ["mathematics", "physics", "chemistry", "biology", "english", "amharic"],
+    color: "#059669",
+    gradient: "from-emerald-500 to-teal-700",
+    light: "bg-emerald-50",
+    border: "border-emerald-200",
+  },
+  {
+    id: "social",
+    name: "Social Science",
+    description: "History, Geography, Civics, Mathematics, and shared language courses for social-focused learners.",
+    subjects: ["mathematics", "history", "geography", "civics", "english", "amharic"],
+    color: "#EA580C",
+    gradient: "from-orange-500 to-rose-600",
+    light: "bg-orange-50",
+    border: "border-orange-200",
+  },
+];
+
+export function isStreamId(value: string | undefined): value is StreamId {
+  return value === "natural" || value === "social";
+}
+
+export function getStream(streamId: string | undefined) {
+  return STREAMS.find(stream => stream.id === streamId);
+}
+
+export function getSubjectsForStream(streamId: string | undefined) {
+  const stream = getStream(streamId);
+  if (!stream) return SUBJECT_DEFS;
+  return stream.subjects
+    .map(id => SUBJECT_DEFS.find(subject => subject.id === id))
+    .filter((subject): subject is SubjectDef => Boolean(subject));
+}
+
+export function getStreamForSubject(subjectId: string): StreamId {
+  if (STREAMS.find(stream => stream.id === "natural")?.subjects.includes(subjectId)) return "natural";
+  return "social";
+}
+
 export const CHAPTERS_BY_SUBJECT: Record<string, string[]> = {
   mathematics: [
     "Relations and Functions", "Polynomials", "Exponential & Logarithmic Functions",

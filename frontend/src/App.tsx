@@ -3,6 +3,7 @@ import RootLayout from './layouts/RootLayout'
 import Home from './pages/Home'
 import Learn from './pages/Learn'
 import GradePage from './pages/GradePage'
+import StreamSubjectsPage from './pages/StreamSubjectsPage'
 import SubjectPage from './pages/SubjectPage'
 import ChapterDetail from './pages/ChapterDetail'
 import NationalExam from './pages/NationalExam'
@@ -13,6 +14,7 @@ import About from './pages/About'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import BecomeTutor from './pages/BecomeTutor'
 import ExamTake from './pages/ExamTake'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -27,15 +29,17 @@ const router = createBrowserRouter([{
     { path: 'login', Component: Login },
     { path: 'register', Component: Register },
     { path: 'forgot-password', Component: ForgotPassword },
+    { path: 'reset-password', Component: ResetPassword },
     {
       Component: ProtectedRoute,
       children: [
         { path: 'become-tutor', Component: BecomeTutor },
         { path: 'edit-tutor-profile', Component: BecomeTutor },
         { path: 'learn', Component: Learn },
-        { path: 'learn/:grade', Component: GradePage },
-        { path: 'learn/:grade/:subject', Component: SubjectPage },
-        { path: 'learn/:grade/:subject/:chapter', Component: ChapterDetail },
+        { path: 'learn/:stream', Component: GradePage },
+        { path: 'learn/:stream/:grade', Component: StreamSubjectsPage },
+        { path: 'learn/:stream/:grade/:subject', Component: SubjectPage },
+        { path: 'learn/:stream/:grade/:subject/:chapter', Component: ChapterDetail },
         { path: 'exam', Component: NationalExam },
         { path: 'exam/take/:examId', Component: ExamTake },
         { path: 'tutors', Component: Tutors },

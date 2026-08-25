@@ -10,7 +10,8 @@ export default function Register() {
   const { user, register } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -21,12 +22,12 @@ export default function Register() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [touched, setTouched] = useState(false);
-
-  if (user) return <Navigate to="/learn" replace />;
+  const [submitting, setSubmitting] = useState(false);
 
   const validation = useMemo(() => {
     const issues: string[] = [];
-    if (form.name.trim().length < 2) issues.push("Full name must be at least 2 characters.");
+    if (form.firstName.trim().length < 2) issues.push("First name must be at least 2 characters.");
+    if (form.lastName.trim().length < 2) issues.push("Last name must be at least 2 characters.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) issues.push("Enter a valid email address.");
     if (form.password.length < 6) issues.push("Password must be at least 6 characters.");
     if (form.password !== form.confirmPassword) issues.push("Passwords do not match.");
@@ -34,25 +35,34 @@ export default function Register() {
     return issues;
   }, [form]);
 
-  const submit = (event: FormEvent) => {
+  if (user) return <Navigate to="/learn" replace />;
+
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     setTouched(true);
+    setError("");
     if (validation.length > 0) {
       setError(validation[0]);
       return;
     }
-    const result = register({
-      name: form.name,
-      email: form.email,
-      password: form.password,
-      grade: form.grade,
-      school: form.school,
-    });
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    setSubmitting(true);
+    try {
+      const result = await register({
+        name: `${form.firstName.trim()} ${form.lastName.trim()}`,
+        email: form.email,
+        password: form.password,
+        confirmPassword: form.confirmPassword,
+        grade: form.grade,
+        school: form.school,
+      });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      navigate("/learn", { replace: true });
+    } finally {
+      setSubmitting(false);
     }
-    navigate("/learn", { replace: true });
   };
 
   return (
@@ -67,9 +77,14 @@ export default function Register() {
         </div>
 
         <form onSubmit={submit} className="space-y-5" noValidate>
-          <Field label="Full name">
-            <input value={form.name} onChange={event => setForm({ ...form, name: event.target.value })} placeholder="Your full name" className={inputClass} />
-          </Field>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field label="First name">
+              <input value={form.firstName} onChange={event => setForm({ ...form, firstName: event.target.value })} placeholder="First name" className={inputClass} />
+            </Field>
+            <Field label="Last name">
+              <input value={form.lastName} onChange={event => setForm({ ...form, lastName: event.target.value })} placeholder="Last name" className={inputClass} />
+            </Field>
+          </div>
           <Field label="Email address">
             <input type="email" value={form.email} onChange={event => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" className={inputClass} />
           </Field>
@@ -124,8 +139,8 @@ export default function Register() {
             </div>
           )}
 
-          <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] py-3.5 font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700">
-            Create student account <ArrowRight className="h-4 w-4" />
+          <button disabled={submitting} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] py-3.5 font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70">
+            {submitting ? "Creating account..." : "Create student account"} <ArrowRight className="h-4 w-4" />
           </button>
         </form>
 

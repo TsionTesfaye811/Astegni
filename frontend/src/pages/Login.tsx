@@ -2,35 +2,43 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { ArrowRight, BookOpen, Eye, EyeOff, GraduationCap, LockKeyhole, Mail } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { getRememberedEmail, useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState("");
+  const rememberedEmail = getRememberedEmail();
+  const [email, setEmail] = useState(rememberedEmail);
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(Boolean(rememberedEmail));
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const fromPath = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname;
 
   if (user) {
     return <Navigate to={fromPath && fromPath !== "/login" ? fromPath : "/learn"} replace />;
   }
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     setError("");
     if (!email.trim() || !password) {
       setError("Please enter your email and password.");
       return;
     }
-    const result = login(email, password);
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    setSubmitting(true);
+    try {
+      const result = await login(email, password, rememberMe);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      navigate(fromPath && fromPath !== "/login" ? fromPath : "/learn", { replace: true });
+    } finally {
+      setSubmitting(false);
     }
-    navigate(fromPath && fromPath !== "/login" ? fromPath : "/learn", { replace: true });
   };
 
   return (
@@ -61,15 +69,24 @@ export default function Login() {
               <div className="relative mt-2"><LockKeyhole className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input type={showPassword ? "text" : "password"} value={password} onChange={event => setPassword(event.target.value)} placeholder="Your password" className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-11 outline-none transition focus:border-[#2563EB] focus:ring-4 focus:ring-blue-50" /><button type="button" onClick={() => setShowPassword(value => !value)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-label="Toggle password visibility">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></div>
             </label>
 
-            <div className="flex justify-end">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold text-slate-600">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={event => setRememberMe(event.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]"
+                />
+                Remember me
+              </label>
               <Link to="/forgot-password" className="text-sm font-bold text-[#2563EB] hover:text-blue-700">Forgot password?</Link>
             </div>
 
             {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] py-3.5 font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700">Log in <ArrowRight className="h-4 w-4" /></button>
+            <button disabled={submitting} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] py-3.5 font-bold text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70">{submitting ? "Logging in..." : "Log in"} <ArrowRight className="h-4 w-4" /></button>
           </form>
-          <p className="mt-7 text-center text-sm text-slate-500">New to Astegni? <Link to="/register" className="font-bold text-[#2563EB]">Create an account</Link></p>
+          <p className="mt-7 text-center text-sm text-slate-500">Don&apos;t have an account? <Link to="/register" className="font-bold text-[#2563EB]">Sign Up</Link></p>
         </div>
       </div>
     </div>

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ChevronRight, BookOpen, Play, FileText, Download, HelpCircle, FolderOpen, CheckCircle2, Lock, Clock, ChevronDown, ChevronUp } from "lucide-react";
-import { SUBJECT_DEFS, CHAPTERS_BY_SUBJECT } from "../data";
+import { SUBJECT_DEFS, CHAPTERS_BY_SUBJECT, getStream, getStreamForSubject, getSubjectsForStream, isStreamId } from "../data";
 import { Breadcrumb } from "../components/Breadcrumb";
+import { chaptersForSubjectAndGrade, getChapters } from "../api/chapters";
+import type { ApiChapter } from "../api/chapters";
 
 const CHAPTER_PROGRESS = [100, 100, 65, 30, 0, 0, 0, 0, 0];
 
@@ -16,16 +18,46 @@ const TABS = [
 ];
 
 export default function SubjectPage() {
-  const { grade, subject } = useParams<{ grade: string; subject: string }>();
+  const { grade, stream, subject } = useParams<{ grade: string; stream: string; subject: string }>();
   const g = grade ?? "12";
   const subjectId = subject ?? "mathematics";
+  const streamId = isStreamId(stream) ? stream : getStreamForSubject(subjectId);
+  const streamDef = getStream(streamId);
 
   const subjectDef = SUBJECT_DEFS.find(s => s.id === subjectId) ?? SUBJECT_DEFS[0];
-  const chapters = CHAPTERS_BY_SUBJECT[subjectId] ?? CHAPTERS_BY_SUBJECT.mathematics;
+  const localTitles = CHAPTERS_BY_SUBJECT[subjectId] ?? CHAPTERS_BY_SUBJECT.mathematics;
   const [expandedChapter, setExpandedChapter] = useState<number | null>(0);
+  const [apiChapters, setApiChapters] = useState<ApiChapter[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError("");
+    getChapters()
+      .then(chapters => {
+        if (!cancelled) setApiChapters(chaptersForSubjectAndGrade(chapters, subjectId, g));
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setApiChapters(null);
+          setError("Could not load chapters from the server. Showing local chapters instead.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [g, subjectId]);
+
+  const usingApi = Boolean(apiChapters && apiChapters.length > 0);
+  const chapters = usingApi
+    ? apiChapters!.map(chapter => ({ id: chapter.id, title: chapter.name, description: chapter.description, image: chapter.attachement }))
+    : localTitles.map((title, index) => ({ id: index + 1, title, description: "", image: undefined as string | undefined }));
 
   const Icon = subjectDef.icon;
-  const overallProgress = Math.round(CHAPTER_PROGRESS.slice(0, chapters.length).reduce((a, b) => a + b, 0) / chapters.length);
+  const overallProgress = Math.round(CHAPTER_PROGRESS.slice(0, chapters.length).reduce((a, b) => a + b, 0) / Math.max(chapters.length, 1));
 
   return (
     <div className="bg-[#F8FAFC] min-h-screen">
@@ -35,7 +67,8 @@ export default function SubjectPage() {
           <Breadcrumb items={[
             { label: "Home", to: "/" },
             { label: "Learn", to: "/learn" },
-            { label: `Grade ${g}`, to: `/learn/${g}` },
+            { label: streamDef?.name ?? "Stream", to: `/learn/${streamId}` },
+            { label: `Grade ${g}`, to: `/learn/${streamId}/${g}` },
             { label: subjectDef.name },
           ]} />
           <div className="flex items-start gap-5 mt-5">
@@ -66,15 +99,20 @@ export default function SubjectPage() {
               <h2 className="font-['Plus_Jakarta_Sans',sans-serif] font-extrabold text-xl text-slate-900">Chapters</h2>
             </div>
 
+            {error && (
+              <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">{error}</div>
+            )}
+            {loading && <div className="rounded-2xl border border-slate-100 bg-white p-6 text-sm text-slate-500">Loading chapters…</div>}
+
             <div className="space-y-3">
-              {chapters.map((chapterTitle, i) => {
-                const progress = CHAPTER_PROGRESS[i] ?? 0;
-                const isLocked = i > 3;
+              {!loading && chapters.map((chapter, i) => {
+                const progress = usingApi ? 0 : (CHAPTER_PROGRESS[i] ?? 0);
+                const isLocked = usingApi ? false : i > 3;
                 const isExpanded = expandedChapter === i;
                 const status = progress === 100 ? "done" : progress > 0 ? "inprogress" : isLocked ? "locked" : "available";
 
                 return (
-                  <div key={i} className={`bg-white rounded-2xl border transition-all duration-200 ${isExpanded ? "border-blue-200 shadow-lg shadow-blue-100" : "border-slate-100 hover:border-slate-200 hover:shadow-md"}`}>
+                  <div key={chapter.id} className={`bg-white rounded-2xl border transition-all duration-200 ${isExpanded ? "border-blue-200 shadow-lg shadow-blue-100" : "border-slate-100 hover:border-slate-200 hover:shadow-md"}`}>
                     <button
                       onClick={() => !isLocked && setExpandedChapter(isExpanded ? null : i)}
                       className="w-full flex items-center gap-4 p-5 text-left"
@@ -91,7 +129,8 @@ export default function SubjectPage() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm text-slate-800 truncate">{chapterTitle}</h3>
+                        <h3 className="font-semibold text-sm text-slate-800 truncate">{chapter.title}</h3>
+                        {chapter.description && <p className="mt-1 text-xs text-slate-500 truncate">{chapter.description}</p>}
                         <div className="flex items-center gap-3 mt-1.5">
                           {progress > 0 && (
                             <div className="flex items-center gap-2 flex-1 max-w-[180px]">
@@ -117,7 +156,7 @@ export default function SubjectPage() {
                           {TABS.map(tab => {
                             const TabIcon = tab.icon;
                             return (
-                              <Link key={tab.id} to={`/learn/${g}/${subjectId}/${i + 1}?tab=${tab.id}`}
+                              <Link key={tab.id} to={`/learn/${streamId}/${g}/${subjectId}/${chapter.id}?tab=${tab.id}`}
                                 className="group flex flex-col items-center gap-1.5 p-3 rounded-xl bg-slate-50 hover:bg-blue-50 border border-slate-100 hover:border-blue-200 transition-all text-center">
                                 <TabIcon className="w-4 h-4 text-slate-500 group-hover:text-blue-600 transition-colors" />
                                 <span className="text-[10px] font-semibold text-slate-600 group-hover:text-blue-600 leading-tight">{tab.label}</span>
@@ -126,7 +165,7 @@ export default function SubjectPage() {
                           })}
                         </div>
                         <div className="mt-3 flex gap-2">
-                          <Link to={`/learn/${g}/${subjectId}/${i + 1}`}
+                          <Link to={`/learn/${streamId}/${g}/${subjectId}/${chapter.id}`}
                             className="flex-1 text-center py-2.5 bg-[#2563EB] hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-colors">
                             {progress > 0 ? "Continue Chapter" : "Start Chapter"} →
                           </Link>
@@ -169,10 +208,10 @@ export default function SubjectPage() {
             <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
               <h3 className="font-bold text-sm text-slate-700 mb-4">Other Subjects</h3>
               <div className="space-y-2">
-                {SUBJECT_DEFS.filter(s => s.id !== subjectId).slice(0, 5).map(s => {
+                {getSubjectsForStream(streamId).filter(s => s.id !== subjectId).slice(0, 5).map(s => {
                   const SI = s.icon;
                   return (
-                    <Link key={s.id} to={`/learn/${g}/${s.id}`}
+                    <Link key={s.id} to={`/learn/${streamId}/${g}/${s.id}`}
                       className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-colors group">
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: s.bg }}>
                         <SI className="w-4 h-4" style={{ color: s.color }} />

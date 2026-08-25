@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Star, MapPin, Mail, Phone, BookOpen, Award, ChevronLeft, CheckCircle2, Clock, Calendar, Users, Pencil } from "lucide-react";
-import { getTutorById, SUBJECT_DEFS } from "../data";
+import { getTutorById, SUBJECT_DEFS, getStreamForSubject } from "../data";
 import { Breadcrumb } from "../components/Breadcrumb";
 import { useAuth } from "../context/AuthContext";
 
@@ -218,7 +218,7 @@ export default function TutorProfile() {
                           <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center"><BookOpen className="w-4 h-4 text-blue-600" /></div>
                           <div><div className="font-semibold text-slate-800">{sub}</div><div className="text-xs text-slate-500">Grades 9–12</div></div>
                         </div>
-                        <Link to={`/learn/12/${subjectSlug(sub)}`} className="text-xs font-bold text-[#2563EB] hover:text-blue-700 transition-colors">View lessons →</Link>
+                        <Link to={`/learn/${getStreamForSubject(subjectSlug(sub))}/12/${subjectSlug(sub)}`} className="text-xs font-bold text-[#2563EB] hover:text-blue-700 transition-colors">View lessons →</Link>
                       </div>
                     ))}
                   </div>

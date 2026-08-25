@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { SUBJECT_DEFS, TUTORS, RECENT_LESSONS } from "../data";
+import { SUBJECT_DEFS, TUTORS, RECENT_LESSONS, getStreamForSubject } from "../data";
 import {
   Search, Play, Star, Users, ArrowRight, Sparkles,
   CheckCircle2, BookCheck, Target, TrendingUp, BarChart3,
@@ -140,7 +140,7 @@ export default function Home() {
             {SUBJECT_DEFS.map(s => {
               const Icon = s.icon;
               return (
-                <Link key={s.id} to={`/learn/12/${s.id}`}
+                <Link key={s.id} to={`/learn/${getStreamForSubject(s.id)}/12/${s.id}`}
                   style={{ background: s.bg, borderColor: s.iconBg }}
                   className="group flex flex-col items-center gap-2.5 p-4 rounded-2xl border hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                   <div className="w-11 h-11 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform" style={{ background: s.iconBg }}>
@@ -161,7 +161,7 @@ export default function Home() {
           <SectionHeader label="Continue Where You Left Off" title="Featured Lessons" linkTo="/learn" linkText="All lessons" />
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {RECENT_LESSONS.map(lesson => (
-              <Link key={lesson.title} to={`/learn/${lesson.grade}/${lesson.subject.toLowerCase()}`}
+              <Link key={lesson.title} to={`/learn/${getStreamForSubject(lesson.subject.toLowerCase())}/${lesson.grade}/${lesson.subject.toLowerCase()}`}
                 className="group bg-white rounded-2xl border border-slate-100 overflow-hidden hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
                 <div className="relative aspect-video overflow-hidden bg-slate-100">
                   <img src={lesson.image} alt={lesson.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

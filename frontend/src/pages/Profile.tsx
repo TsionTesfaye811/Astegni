@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { User, TrendingUp, Bookmark, Settings, LogOut, Award, BookOpen, Bell, Moon, Sun, Globe, ChevronRight, CheckCircle2, Camera, BriefcaseBusiness } from "lucide-react";
-import { SUBJECT_DEFS } from "../data";
+import { SUBJECT_DEFS, getStreamForSubject } from "../data";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
@@ -18,10 +18,10 @@ const GOALS = ["Pass the National Exam for Grade 12", "Improve weak subjects", "
 const PROGRESS_DATA = SUBJECT_DEFS.slice(0, 6).map((s, i) => ({ ...s, progress: [72, 45, 30, 88, 95, 55][i] }));
 
 const BOOKMARKS = [
-  { title: "Quadratic Equations & Their Roots", subject: "Mathematics", grade: "12", to: "/learn/12/mathematics/1" },
-  { title: "Newton's Laws of Motion", subject: "Physics", grade: "11", to: "/learn/11/physics/1" },
-  { title: "Cell Division: Mitosis & Meiosis", subject: "Biology", grade: "12", to: "/learn/12/biology/1" },
-  { title: "The Adwa Victory", subject: "History", grade: "9", to: "/learn/9/history/3" },
+  { title: "Quadratic Equations & Their Roots", subject: "Mathematics", grade: "12", to: "/learn/natural/12/mathematics/1" },
+  { title: "Newton's Laws of Motion", subject: "Physics", grade: "11", to: "/learn/natural/11/physics/1" },
+  { title: "Cell Division: Mitosis & Meiosis", subject: "Biology", grade: "12", to: "/learn/natural/12/biology/1" },
+  { title: "The Adwa Victory", subject: "History", grade: "9", to: "/learn/social/9/history/3" },
 ];
 
 const ACHIEVEMENTS = [
@@ -48,6 +48,8 @@ export default function Profile() {
   const [lang, setLang] = useState("English");
   const [notifications, setNotifications] = useState({ email: true, push: false, weekly: true });
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [subjects, setSubjects] = useState<string[]>(user?.profile.preferredSubjects ?? []);
   const [form, setForm] = useState({
     name: user?.name ?? "",
@@ -75,27 +77,38 @@ export default function Profile() {
     setSubjects(current => current.includes(subject) ? current.filter(item => item !== subject) : [...current, subject]);
   };
 
-  const saveProfile = () => {
-    updateProfile({
-      name: form.name.trim(),
-      grade: form.grade,
-      school: form.school.trim(),
-      phone: form.phone.trim(),
-      city: form.city.trim(),
-      region: form.region,
-      gender: form.gender,
-      dateOfBirth: form.dateOfBirth,
-      age: form.age ? Number(form.age) : undefined,
-      stream: form.stream,
-      preferredSubjects: subjects,
-      studyGoal: form.studyGoal,
-      learningStyle: form.learningStyle,
-      parentContact: form.parentContact.trim(),
-      bio: form.bio.trim(),
-      profileComplete: true,
-    });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const saveProfile = async () => {
+    setSaveError("");
+    setSaving(true);
+    try {
+      const result = await updateProfile({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        grade: form.grade,
+        school: form.school.trim(),
+        phone: form.phone.trim(),
+        city: form.city.trim(),
+        region: form.region,
+        gender: form.gender,
+        dateOfBirth: form.dateOfBirth,
+        age: form.age ? Number(form.age) : undefined,
+        stream: form.stream,
+        preferredSubjects: subjects,
+        studyGoal: form.studyGoal,
+        learningStyle: form.learningStyle,
+        parentContact: form.parentContact.trim(),
+        bio: form.bio.trim(),
+        profileComplete: true,
+      });
+      if (!result.ok) {
+        setSaveError(result.error);
+        return;
+      }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -253,9 +266,13 @@ export default function Profile() {
                     </section>
                   </div>
 
-                  <button onClick={saveProfile}
-                    className="mt-6 px-6 py-2.5 bg-[#2563EB] text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-colors">
-                    {saved ? "✓ Profile saved!" : isComplete ? "Update profile" : "Save profile"}
+                  {saveError && (
+                    <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{saveError}</div>
+                  )}
+
+                  <button onClick={saveProfile} disabled={saving}
+                    className="mt-6 px-6 py-2.5 bg-[#2563EB] text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-colors disabled:cursor-not-allowed disabled:opacity-70">
+                    {saving ? "Saving..." : saved ? "✓ Profile saved!" : isComplete ? "Update profile" : "Save profile"}
                   </button>
                 </div>
 
@@ -295,7 +312,7 @@ export default function Profile() {
                               <div className="h-full rounded-full transition-all duration-700" style={{ width: `${s.progress}%`, background: s.color }} />
                             </div>
                           </div>
-                          <Link to={`/learn/12/${s.id}`} className="text-xs font-bold text-[#2563EB] hover:text-blue-700 transition-colors shrink-0">Resume →</Link>
+                          <Link to={`/learn/${getStreamForSubject(s.id)}/12/${s.id}`} className="text-xs font-bold text-[#2563EB] hover:text-blue-700 transition-colors shrink-0">Resume →</Link>
                         </div>
                       );
                     })}

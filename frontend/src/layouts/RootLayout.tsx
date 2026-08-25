@@ -141,9 +141,9 @@ export default function RootLayout() {
               </div>
             </div>
             {[
-              { heading: "Learn", links: [["Grade 9", "/learn/9"], ["Grade 10", "/learn/10"], ["Grade 11", "/learn/11"], ["Grade 12", "/learn/12"]] },
+              { heading: "Learn", links: [["Natural Science", "/learn/natural"], ["Social Science", "/learn/social"], ["Grade 12 Natural", "/learn/natural/12"], ["Grade 12 Social", "/learn/social/12"]] },
               { heading: "Platform", links: [["National Exam", "/exam"], ["Tutors", "/tutors"], ["Become a Tutor", "/become-tutor"], ["Profile", "/profile"], ["About", "/about"]] },
-              { heading: "Subjects", links: [["Mathematics", "/learn/12/mathematics"], ["Physics", "/learn/12/physics"], ["Chemistry", "/learn/12/chemistry"], ["Biology", "/learn/12/biology"]] },
+              { heading: "Subjects", links: [["Mathematics", "/learn/natural/12/mathematics"], ["Physics", "/learn/natural/12/physics"], ["Chemistry", "/learn/natural/12/chemistry"], ["Biology", "/learn/natural/12/biology"]] },
             ].map(({ heading, links }) => (
               <div key={heading}>
                 <h4 className="text-sm font-bold text-white mb-4">{heading}</h4>

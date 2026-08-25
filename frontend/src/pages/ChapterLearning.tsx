@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { BookOpen, CheckCircle2, ChevronLeft, ChevronRight, Clock, Download, FileText, FolderOpen, HelpCircle, Play, Star, Users, X } from "lucide-react";
-import { SUBJECT_DEFS, CHAPTERS_BY_SUBJECT } from "../data";
+import { SUBJECT_DEFS, CHAPTERS_BY_SUBJECT, getStream, getStreamForSubject, isStreamId } from "../data";
 import { Breadcrumb } from "../components/Breadcrumb";
+import { chaptersForSubjectAndGrade, findChapter, getChapters } from "../api/chapters";
+import type { ApiChapter } from "../api/chapters";
 
 type Tab = "notes" | "textbook" | "videos" | "resources" | "quiz";
 interface ProgressState { pagesRead: number[]; quizDone: boolean; score?: number }
@@ -32,11 +34,12 @@ function readProgress(key: string): ProgressState {
 }
 
 export default function ChapterLearning() {
-  const { grade = "12", subject = "mathematics", chapter = "1" } = useParams();
+  const { grade = "12", stream, subject = "mathematics", chapter = "1" } = useParams();
   const chapterNumber = Number(chapter) || 1;
   const subjectDef = SUBJECT_DEFS.find(item => item.id === subject) ?? SUBJECT_DEFS[0];
-  const chapters = CHAPTERS_BY_SUBJECT[subject] ?? CHAPTERS_BY_SUBJECT.mathematics;
-  const chapterTitle = chapters[chapterNumber - 1] ?? chapters[0];
+  const streamId = isStreamId(stream) ? stream : getStreamForSubject(subject);
+  const streamDef = getStream(streamId);
+  const localTitles = CHAPTERS_BY_SUBJECT[subject] ?? CHAPTERS_BY_SUBJECT.mathematics;
   const progressKey = `astegni_chapter_progress_${grade}_${subject}_${chapter}`;
   const [tab, setTab] = useState<Tab>("notes");
   const [notePage, setNotePage] = useState(0);
@@ -44,7 +47,20 @@ export default function ChapterLearning() {
   const [answers, setAnswers] = useState<(number | null)[]>([null, null, null]);
   const [submitted, setSubmitted] = useState(false);
   const [reader, setReader] = useState<LearningFile | null>(null);
+  const [apiList, setApiList] = useState<ApiChapter[]>([]);
   const Icon = subjectDef.icon;
+
+  useEffect(() => {
+    let cancelled = false;
+    getChapters()
+      .then(chapters => {
+        if (!cancelled) setApiList(chaptersForSubjectAndGrade(chapters, subject, grade));
+      })
+      .catch(() => {
+        if (!cancelled) setApiList([]);
+      });
+    return () => { cancelled = true; };
+  }, [grade, subject]);
 
   useEffect(() => {
     setChapterProgress(readProgress(progressKey));
@@ -57,6 +73,13 @@ export default function ChapterLearning() {
   useEffect(() => {
     localStorage.setItem(progressKey, JSON.stringify(chapterProgress));
   }, [chapterProgress, progressKey]);
+
+  const apiChapter = findChapter(apiList, chapterNumber);
+  const chapterIds = apiList.length > 0 ? apiList.map(item => item.id) : localTitles.map((_, index) => index + 1);
+  const chapterTitle = apiChapter?.name ?? localTitles[chapterNumber - 1] ?? localTitles[0];
+  const chapterIndex = chapterIds.indexOf(chapterNumber);
+  const previousId = chapterIndex > 0 ? chapterIds[chapterIndex - 1] : null;
+  const nextId = chapterIndex >= 0 && chapterIndex < chapterIds.length - 1 ? chapterIds[chapterIndex + 1] : null;
 
   const progress = Math.round(((chapterProgress.pagesRead.length / 3) * 50) + (chapterProgress.quizDone ? 50 : 0));
   const notes = useMemo(() => [
@@ -127,8 +150,8 @@ export default function ChapterLearning() {
     <div className="min-h-screen bg-[#F8FAFC]">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <Breadcrumb items={[{ label: "Home", to: "/" }, { label: "Learn", to: "/learn" }, { label: `Grade ${grade}`, to: `/learn/${grade}` }, { label: subjectDef.name, to: `/learn/${grade}/${subject}` }, { label: `Chapter ${chapterNumber}` }]} />
-          <div className="mt-4 flex items-start gap-4"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style={{ background: subjectDef.bg }}><Icon className="h-6 w-6" style={{ color: subjectDef.color }} /></div><div><div className="text-xs font-bold uppercase tracking-wider" style={{ color: subjectDef.color }}>{subjectDef.name} · Chapter {chapterNumber}</div><h1 className="mt-1 font-['Plus_Jakarta_Sans',sans-serif] text-2xl font-extrabold text-slate-900">{chapterTitle}</h1><div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-500"><span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />~45 min</span><span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />3,240 students</span><span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />4.9</span></div></div></div>
+          <Breadcrumb items={[{ label: "Home", to: "/" }, { label: "Learn", to: "/learn" }, { label: streamDef?.name ?? "Stream", to: `/learn/${streamId}` }, { label: `Grade ${grade}`, to: `/learn/${streamId}/${grade}` }, { label: subjectDef.name, to: `/learn/${streamId}/${grade}/${subject}` }, { label: `Chapter ${chapterNumber}` }]} />
+          <div className="mt-4 flex items-start gap-4"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl" style={{ background: subjectDef.bg }}><Icon className="h-6 w-6" style={{ color: subjectDef.color }} /></div><div><div className="text-xs font-bold uppercase tracking-wider" style={{ color: subjectDef.color }}>{subjectDef.name} · Chapter {chapterNumber}</div><h1 className="mt-1 font-['Plus_Jakarta_Sans',sans-serif] text-2xl font-extrabold text-slate-900">{chapterTitle}</h1>{apiChapter?.description && <p className="mt-2 text-sm text-slate-500">{apiChapter.description}</p>}<div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-500"><span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />~45 min</span><span className="flex items-center gap-1"><Users className="h-3.5 w-3.5" />3,240 students</span><span className="flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />4.9</span></div></div></div>
           <div className="mt-6 flex items-center gap-4"><div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-[#2563EB] transition-all duration-500" style={{ width: `${progress}%` }} /></div><span className="text-sm font-extrabold text-[#2563EB]">{progress}% complete</span>{progress === 100 && <CheckCircle2 className="h-5 w-5 text-emerald-500" />}</div>
         </div>
         <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8">
@@ -218,8 +241,8 @@ export default function ChapterLearning() {
           )}
 
           <div className="mt-6 flex justify-between">
-            {chapterNumber > 1 ? <Link to={`/learn/${grade}/${subject}/${chapterNumber - 1}`} className="flex items-center gap-2 text-sm font-bold text-slate-500"><ChevronLeft className="h-4 w-4" />Previous chapter</Link> : <span />}
-            {chapterNumber < chapters.length && <Link to={`/learn/${grade}/${subject}/${chapterNumber + 1}`} className="flex items-center gap-2 text-sm font-bold text-[#2563EB]">Next chapter<ChevronRight className="h-4 w-4" /></Link>}
+            {previousId ? <Link to={`/learn/${streamId}/${grade}/${subject}/${previousId}`} className="flex items-center gap-2 text-sm font-bold text-slate-500"><ChevronLeft className="h-4 w-4" />Previous chapter</Link> : <span />}
+            {nextId ? <Link to={`/learn/${streamId}/${grade}/${subject}/${nextId}`} className="flex items-center gap-2 text-sm font-bold text-[#2563EB]">Next chapter<ChevronRight className="h-4 w-4" /></Link> : <span />}
           </div>
         </div>
 
